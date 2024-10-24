@@ -1,4 +1,4 @@
-import json
+import json 
 import boto3
 from decimal import Decimal
 
@@ -16,8 +16,58 @@ def lambda_handler(event, context):
     }
 
     try:
+        # DELETE items 
+        if event['routeKey'] == "DELETE /items/{id}":
+            table.delete_item(
+                Key={'id': event['pathParameters']['id']}
+            )
+            body = 'Deleted items with id ' + event['pathParameters']['id']
+        
+        # GET items by id
+        elif event['routeKey'] == "GET /items/{id}":
+            body = table.get_item(
+                Key={'id': event['pathParameters']['id']}
+            )
+            body = body.get("Item", {})
+            if body:
+                responseBody = {
+                    'id': body['id'], 
+                    'description': body['description'], 
+                    'status': body['status']
+                }
+                body = responseBody
+            else:
+                body = "items not found"
+        
+        # GET all items 
+        elif event['routeKey'] == "GET /items":
+            body = table.scan()
+            body = body["Items"]
+            print("items----")
+            print(body)
+            responseBody = []
+            for items in body:
+                responseItems = {
+                    'id': items['id'], 
+                    'description': items['description'], 
+                    'status': items['status']
+                }
+                responseBody.append(responseItems)
+            body = responseBody
 
-     except KeyError: (JAYA)
+        # PUT (create/update)items
+        elif event['routeKey'] == "PUT /items":
+            requestJSON = json.loads(event['body'])
+            table.put_item(
+                Item={
+                    'id': requestJSON['id'],  # ID of the items
+                    'description': requestJSON['description'],  # items description
+                    'status': requestJSON['status']  # items status (e.g., 'completed' or 'pending')
+                }
+            )
+            body = 'Put items with id ' + requestJSON['id']
+
+    except KeyError:
         statusCode = 400
         body = 'Unsupported route: ' + event['routeKey']
     
@@ -27,4 +77,4 @@ def lambda_handler(event, context):
         "headers": headers,
         "body": body
     }
-    return res
+    return res
