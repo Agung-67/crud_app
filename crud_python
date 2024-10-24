@@ -55,7 +55,7 @@ def lambda_handler(event, context):
                 responseBody.append(responseItems)
             body = responseBody
 
-        # PUT (create/update)items (IMA)
+        # PUT (create/update)items
         elif event['routeKey'] == "PUT /items":
             requestJSON = json.loads(event['body'])
             table.put_item(
@@ -66,3 +66,15 @@ def lambda_handler(event, context):
                 }
             )
             body = 'Put items with id ' + requestJSON['id']
+
+    except KeyError:
+        statusCode = 400
+        body = 'Unsupported route: ' + event['routeKey']
+    
+    body = json.dumps(body)
+    res = {
+        "statusCode": statusCode,
+        "headers": headers,
+        "body": body
+    }
+    return res
