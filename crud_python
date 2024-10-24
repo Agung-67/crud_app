@@ -54,3 +54,15 @@ def lambda_handler(event, context):
                 }
                 responseBody.append(responseItems)
             body = responseBody
+
+        # PUT (create/update)items (IMA)
+        elif event['routeKey'] == "PUT /items":
+            requestJSON = json.loads(event['body'])
+            table.put_item(
+                Item={
+                    'id': requestJSON['id'],  # ID of the items
+                    'description': requestJSON['description'],  # items description
+                    'status': requestJSON['status']  # items status (e.g., 'completed' or 'pending')
+                }
+            )
+            body = 'Put items with id ' + requestJSON['id']
