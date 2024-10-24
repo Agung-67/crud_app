@@ -16,3 +16,19 @@ def lambda_handler(event, context):
     }
 
     try:
+
+# GET all items
+        elif event['routeKey'] == "GET /items":
+            body = table.scan()
+            body = body["Items"]
+            print("items----")
+            print(body)
+            responseBody = []
+            for items in body:
+                responseItems = {
+                    'id': items['id'], 
+                    'description': items['description'], 
+                    'status': items['status']
+                }
+                responseBody.append(responseItems)
+            body = responseBody
