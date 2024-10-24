@@ -16,3 +16,15 @@ def lambda_handler(event, context):
     }
 
     try:
+
+     except KeyError: (JAYA)
+        statusCode = 400
+        body = 'Unsupported route: ' + event['routeKey']
+    
+    body = json.dumps(body)
+    res = {
+        "statusCode": statusCode,
+        "headers": headers,
+        "body": body
+    }
+    return res
