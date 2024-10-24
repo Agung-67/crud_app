@@ -16,3 +16,26 @@ def lambda_handler(event, context):
     }
 
     try:
+  # DELETE items (SHAFA)
+        if event['routeKey'] == "DELETE /items/{id}":
+            table.delete_item(
+                Key={'id': event['pathParameters']['id']}
+            )
+            body = 'Deleted items with id ' + event['pathParameters']['id']
+        
+        # GET items by id
+        elif event['routeKey'] == "GET /items/{id}":
+            body = table.get_item(
+                Key={'id': event['pathParameters']['id']}
+            )
+            body = body.get("Item", {})
+            if body:
+                responseBody = {
+                    'id': body['id'], 
+                    'description': body['description'], 
+                    'status': body['status']
+                }
+                body = responseBody
+            else:
+                body = "items not found"
+
